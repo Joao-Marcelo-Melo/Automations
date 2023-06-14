@@ -77,7 +77,7 @@ class SistemaAutomator:
 
 class DominioAutomator(SistemaAutomator):
 
-    def LogarDominio(self, email, senha):
+    def LoginDominio(self, email, senha):
         print("Logando no Domínio Web")
         dominio_login = "https://www.dominioweb.com.br/"
 
@@ -103,7 +103,7 @@ class DominioAutomator(SistemaAutomator):
                 return True
             time.sleep(1)
 
-    def LogarModulo(self, usuario, senha, modulo):
+    def LoginModulo(self, usuario, senha, modulo):
         print("Logando no módulo: " + modulo)
         SistemaAutomator().CliqueImagem(modulo, 2)
         time.sleep(20)
@@ -112,3 +112,4 @@ class DominioAutomator(SistemaAutomator):
         pyautogui.write(senha)
         pyautogui.press("tab", presses=2)
         pyautogui.press("enter")
+        self.AguardarImagem('AvisoVencimento')
