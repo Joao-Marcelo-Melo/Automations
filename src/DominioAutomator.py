@@ -119,4 +119,3 @@ class DominioAutomator(SistemaAutomator):
         pyautogui.write(senha)
         pyautogui.press("tab", 2)
         pyautogui.press("enter")
-        super().AguardarImagem('AvisoVencimentoPC')
