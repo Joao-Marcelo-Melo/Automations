@@ -17,8 +17,8 @@ class SistemaAutomator:
                 continue
             
     def __BuscarImagem(self, imagem):
-        caminho_imagem = "img/dominio/" + imagem + ".png"
-        posicao = pyautogui.locateOnScreen(caminho_imagem)
+        caminho_imagem = "src/images/" + imagem + ".png"
+        posicao = pyautogui.locateOnScreen(caminho_imagem, region=(0, 0, pyautogui.size().width, pyautogui.size().height), grayscale=True, confidence=0.8)
 
         if posicao is not None:
             return posicao
@@ -31,6 +31,7 @@ class SistemaAutomator:
             centro_y = posicao.top + posicao.height / 2
             pyautogui.click(centro_x, centro_y, clicks=count, button=botao)
 
+
     def AguardarImagem(self, imagem, tentativas=0, sleep=1):
         if tentativas == 0:
             while True:
@@ -42,9 +43,7 @@ class SistemaAutomator:
                     return True
         else:
             for tentativa in range(tentativas):
-                print(tentativa)
                 resultado_busca = self.__BuscarImagem(imagem)
-
                 if resultado_busca == False:
                     time.sleep(sleep)
                 else:
@@ -54,12 +53,16 @@ class SistemaAutomator:
     def AguardarImagens(self, imagens):
         while True:
             for imagem in imagens:
-                PosX, PosY = pyautogui.locateCenterOnScreen(f"img/dominio/{imagem}.png", region=(0, 0, pyautogui.size().width, pyautogui.size().height), grayscale=True, confidence=0.8)
-                if PosX is None or PosY is None:
+                caminho_imagem = "src/images/" + imagem + ".png"
+                result = pyautogui.locateCenterOnScreen(caminho_imagem, region=(0, 0, pyautogui.size().width, pyautogui.size().height), grayscale=True, confidence=0.8)
+                if result is None:
                     time.sleep(1)
+                    continue
                 else:
+                    PosX, PosY = result
                     return imagem
-
+                
+    
     def AguardarJanela(self, janela, tempo = 1, tentativas = 0):
         if tentativas == 0:
             while True:
@@ -74,18 +77,26 @@ class SistemaAutomator:
                     return True
                 time.sleep(tempo)
             return False
-        
+
+    
+    def carregar_json(self):
+        with open('src/empresas.json', encoding='utf-8') as file:
+            empresas = json.load(file)
+            return empresas
+
+
     def AlterarValorJson(self, empresa_id, novo_status):
-        caminho_json = "src/empresas.json"
-        with open(caminho_json) as arquivo:
+        caminho_arquivo = r'src/empresas.json'
+        with open(caminho_arquivo, encoding='utf-8') as arquivo:
             conteudo = json.load(arquivo)
         
         for empresa in conteudo:
             if empresa["id"] == empresa_id:
                 empresa["status"] = novo_status
         
-        with open(caminho_json,'w') as arquivo:
+        with open(caminho_arquivo,'w') as arquivo:
             json.dump(conteudo, arquivo, indent=4)
+        
 
 class DominioAutomator(SistemaAutomator):
     def LogarDominio(self, email, senha):
@@ -112,10 +123,13 @@ class DominioAutomator(SistemaAutomator):
 
     def LogarModulo(self, usuario, senha, modulo):
         print("Logando no módulo: " + modulo)
-        super().CliqueImagem(modulo, 2)
+        super().CliqueImagem("dominio/" + modulo)
+        time.sleep(1)
+        super().CliqueImagem("dominio/" + modulo, 2)
         time.sleep(20)
         pyautogui.write(usuario)
         pyautogui.press("tab")
         pyautogui.write(senha)
         pyautogui.press("tab", 2)
         pyautogui.press("enter")
+        super().AguardarImagem('dominio/aguardar_janela_inicio')

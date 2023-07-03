@@ -1,4 +1,4 @@
-from source import *
+from setup import *
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s [%(levelname)s]: %(message)s')
 
@@ -7,13 +7,15 @@ def handle_exception(exception):
 
 debug_mode = os.getenv('DEBUG')
 
-if debug_mode == "FALSE":
+if debug_mode == "FALSE": 
     try:
-        App()
+        App().iniciar_dominio()
+        App().executar_tarefas_folha()
     except Exception as e:
         handle_exception(e)
 else:
     try:
-        AppTest()
+        # AppTest().iniciar_dominio()
+        AppTest().executar_tarefas_folha()
     except Exception as e:
         handle_exception(e)
