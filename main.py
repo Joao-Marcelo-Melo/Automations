@@ -15,7 +15,7 @@ if debug_mode == "FALSE":
         handle_exception(e)
 else:
     try:
-        # AppTest().iniciar_dominio()
+        AppTest().iniciar_dominio()
         AppTest().executar_tarefas_folha()
     except Exception as e:
         handle_exception(e)

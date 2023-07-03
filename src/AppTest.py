@@ -21,8 +21,8 @@ class AppTest():
         primeira_interacao = True
 
         for empresa in empresas:
-            empresa_id = empresa['id']
             if empresa['status'] == 'pendente':
+                empresa_id = empresa['id']
                 self.folha.trocar_empresa(empresa_id)
                 self.folha.entrar_aviso_de_vencimento()
                 self.folha.definir_configuracoes()

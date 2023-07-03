@@ -12,18 +12,19 @@ class App():
         self.dominio = DominioAutomator()
         self.folha = Folha()
 
-    def IniciarDominio(self):
+    def iniciar_dominio(self):
         self.dominio.LogarDominio(self.email_dominio, self.senha_dominio)
         self.dominio.LogarModulo(self.usuario_modulo, self.senha_modulo, 'folha')
 
-    def ExecutarTarefasFolha(self):
-        caminho_empresas = "src\empresas.json"
-        with open(caminho_empresas, encoding='utf-8') as arquivo:
-            empresas = json.load(arquivo)
+    def executar_tarefas_folha(self):
+        empresas = self.dominio.carregar_json()
+        primeira_interacao = True
 
         for empresa in empresas:
-            empresa_id = empresa['id']
-            self.folha.trocar_empresa(empresa_id)
-            self.folha.entrar_aviso_de_vencimento()
-            self.folha.definir_configuracoes()
-            self.folha.baixar_pdf(empresa_id)
+            if empresa['status'] == 'pendente':
+                empresa_id = empresa['id']
+                self.folha.trocar_empresa(empresa_id)
+                self.folha.entrar_aviso_de_vencimento()
+                self.folha.definir_configuracoes()
+                self.folha.salvar_pdf(empresa_id, primeira_interacao)
+                primeira_interacao = False

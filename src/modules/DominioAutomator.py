@@ -6,24 +6,26 @@ import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-class SistemaAutomator:
+
+class SystemAutomator:
     def CliqueImagem(self, imagem, count=1, botao="LEFT"):
         while True:
-            if self.__BuscarImagem(imagem) != False:
-                imagem_encontrada = self.__BuscarImagem(imagem)
+            if self.BuscarImagem(imagem) is not False:
+                imagem_encontrada = self.BuscarImagem(imagem)
                 self.__Clique(imagem_encontrada, count, botao)
                 break
             else:
                 continue
             
-    def __BuscarImagem(self, imagem):
+
+    def BuscarImagem(self, imagem):
         caminho_imagem = "src/images/" + imagem + ".png"
         posicao = pyautogui.locateOnScreen(caminho_imagem, region=(0, 0, pyautogui.size().width, pyautogui.size().height), grayscale=True, confidence=0.8)
-
         if posicao is not None:
             return posicao
         else:
             return False
+
 
     def __Clique(self, posicao="", count=1, botao="LEFT"):
         if posicao is not None:
@@ -35,7 +37,7 @@ class SistemaAutomator:
     def AguardarImagem(self, imagem, tentativas=0, sleep=1):
         if tentativas == 0:
             while True:
-                resultado_busca = self.__BuscarImagem(imagem)
+                resultado_busca = self.BuscarImagem(imagem)
 
                 if resultado_busca == False:
                     time.sleep(sleep)
@@ -43,26 +45,42 @@ class SistemaAutomator:
                     return True
         else:
             for tentativa in range(tentativas):
-                resultado_busca = self.__BuscarImagem(imagem)
+                print(tentativa)
+                resultado_busca = self.BuscarImagem(imagem)
+
                 if resultado_busca == False:
                     time.sleep(sleep)
                 else:
                     return True
             return False
 
-    def AguardarImagens(self, imagens):
+
+    def AguardarImagens(self, imagens, sleep = 1):
         while True:
             for imagem in imagens:
                 caminho_imagem = "src/images/" + imagem + ".png"
                 result = pyautogui.locateCenterOnScreen(caminho_imagem, region=(0, 0, pyautogui.size().width, pyautogui.size().height), grayscale=True, confidence=0.8)
                 if result is None:
-                    time.sleep(1)
+                    time.sleep(sleep)
                     continue
                 else:
                     PosX, PosY = result
                     return imagem
-                
-    
+        
+
+    def AlterarValorJson(self, empresa_id, chave, novo_status):
+        caminho_arquivo = r'src/empresas.json'
+        with open(caminho_arquivo, encoding='utf-8') as arquivo:
+            conteudo = json.load(arquivo)
+        
+        for empresa in conteudo:
+            if empresa["id"] == empresa_id:
+                empresa[chave] = novo_status
+        
+        with open(caminho_arquivo,'w') as arquivo:
+            json.dump(conteudo, arquivo, indent=4)
+
+
     def AguardarJanela(self, janela, tempo = 1, tentativas = 0):
         if tentativas == 0:
             while True:
@@ -77,28 +95,26 @@ class SistemaAutomator:
                     return True
                 time.sleep(tempo)
             return False
+        
 
-    
+    def esperar_imagem_sumir(self, imagem):
+        while True:
+            resultado_busca = self.BuscarImagem(imagem)
+
+            if resultado_busca == False:
+                time.sleep(1)
+                return False
+            else:
+                return True
+            
+            
     def carregar_json(self):
         with open('src/empresas.json', encoding='utf-8') as file:
             empresas = json.load(file)
             return empresas
-
-
-    def AlterarValorJson(self, empresa_id, novo_status):
-        caminho_arquivo = r'src/empresas.json'
-        with open(caminho_arquivo, encoding='utf-8') as arquivo:
-            conteudo = json.load(arquivo)
+            
         
-        for empresa in conteudo:
-            if empresa["id"] == empresa_id:
-                empresa["status"] = novo_status
-        
-        with open(caminho_arquivo,'w') as arquivo:
-            json.dump(conteudo, arquivo, indent=4)
-        
-
-class DominioAutomator(SistemaAutomator):
+class DominioAutomator(SystemAutomator):
     def LogarDominio(self, email, senha):
         print("Logando no Domínio Web")
         dominio_login = "https://www.dominioweb.com.br/"
@@ -121,12 +137,11 @@ class DominioAutomator(SistemaAutomator):
 
         super().AguardarJanela("Lista de Programas")
 
+
     def LogarModulo(self, usuario, senha, modulo):
         print("Logando no módulo: " + modulo)
-        super().CliqueImagem("dominio/" + modulo)
-        time.sleep(1)
         super().CliqueImagem("dominio/" + modulo, 2)
-        time.sleep(20)
+        super().AguardarImagem('dominio/conectando_modulo')
         pyautogui.write(usuario)
         pyautogui.press("tab")
         pyautogui.write(senha)
